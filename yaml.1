@@ -1,0 +1,45 @@
+name: CI/CD React Azure Deployment
+
+on:
+  push:
+    branches:
+      - main # Change this to 'master' if your default branch name is master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Fetch the latest source code from GitHub
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up the Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # Step 3: Install project dependencies safely
+      - name: Install Dependencies
+        run: npm ci
+
+      # Step 4: Run unit tests (Fails the build if tests fail)
+      - name: Run Tests
+        run: npm test -- --watchAll=false --passWithNoTests
+
+      # Step 5: Compile the React application into static production assets
+      - name: Build Production Bundle
+        run: npm run build
+
+      # Step 6: Sync and upload compiled files directly to Azure $web container
+      - name: Deploy to Azure Blob Storage
+        uses: azure/CLI@v2
+        with:
+          inlineScript: |
+            az storage blob upload-batch \
+              --connection-string "${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}" \
+              --source ./build \
+              --destination '$web' \
+              --overwrite true
