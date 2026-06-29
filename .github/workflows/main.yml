@@ -1,22 +1,21 @@
-name: Deploy Plain HTML to Azure
+name: Deploy Static Web App via Marketplace
  
 on:
   push:
     branches:
-      - main  # Change to master if your friend's default branch is named master
+      - main
  
 jobs:
-  deploy-html:
+  deploy-static-site:
     runs-on: ubuntu-latest
- 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    - name: Checkout Code
+      uses: actions/checkout@v4
  
-      - name: Upload HTML Files to Azure
-        run: |
-          az storage blob upload-batch \
-            --account-name chaitu1 \
-            --account-key '${{ secrets.AZURE_STORAGE_KEY }}' \
-            --destination '$web' \
-            --source .
+    - name: Deploy to Azure Storage
+      uses: bacongobbler/azure-blob-storage-upload@v4.0.0
+      with:
+        source_dir: './Front end repo'                     
+        container_name: '$web'              
+        connection_string: ${{ secrets.AZURE_CONNECTION_KEY }}
+        sync: true
