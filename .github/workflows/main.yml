@@ -1,4 +1,4 @@
-name: Deploy Static Web App via Marketplace
+name: Deploy Static Website to Azure
  
 on:
   push:
@@ -6,16 +6,19 @@ on:
       - main
  
 jobs:
-  deploy-static-site:
+  deploy:
     runs-on: ubuntu-latest
-    steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
  
-    - name: Deploy to Azure Storage
-      uses: bacongobbler/azure-blob-storage-upload@v3.0.0
-      with:
-        source_dir: './Front end repo'                     
-        container_name: '$web'              
-        connection_string: ${{ secrets.AZURE_CONNECTION_KEY }}
-        sync: true
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+ 
+      - name: Upload Website to Azure Storage
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az storage blob upload-batch \
+              --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
+              --account-key ${{ secrets.AZURE_STORAGE_KEY }} \
+              --destination '$web' \
+              --source .
