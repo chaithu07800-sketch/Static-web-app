@@ -15,7 +15,7 @@ jobs:
     - name: Deploy to Azure Storage
       uses: bacongobbler/azure-blob-storage-upload@v3.0.0
       with:
-        source_dir: './Front end repo'                     
+        source_dir: './Frontendrepo'                     
         container_name: '$web'              
         connection_string: ${{ secrets.AZURE_CONNECTION_STRING }}
         sync: true
